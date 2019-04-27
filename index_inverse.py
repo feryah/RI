@@ -157,4 +157,4 @@ for fichier in glob.glob(rep):
                 tokens_freq[token].append(id)
 
 print(tokens_freq)
-#to_json(tokens_freq)
+to_json(tokens_freq)
