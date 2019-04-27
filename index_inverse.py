@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
-# TODO : transformer en json,
+# TODO : 
 # gérer les mots composés,
 # éventuellement les synonymes sauf si on le fait au niveau de la requête,
-# rajouter des assert ?
+## rajouter des assert ?
 
 import json
 import xml.etree.ElementTree as ET
