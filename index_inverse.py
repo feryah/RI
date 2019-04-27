@@ -28,6 +28,11 @@ def usage():
         print("{0}\n{2} est introuvable\n{1}\n{0}".format(sep,message,sys.argv[1]))
         exit()
 
+def regLG():
+    match_lg = re.search(".*([A-Z]{2})/", sys.argv[1])
+    lg = match_lg.group(1)
+    return lg
+
 def tag_phrase(doc, lg):
     """
     permet de tagger du texte avec TreeTagger
@@ -47,8 +52,14 @@ def tokenisation(triplet):
     """
     global table_car
     tok, pos, lem = triplet.split('\t')
-    if 'VER' in pos or 'ADJ' in pos or 'NOM' in pos or 'NAM' in pos:
-        return lem.translate(table_car)
+    
+    if regLG() == "FR":
+        if 'VER' in pos or 'ADJ' in pos or 'NOM' in pos or 'NAM' in pos:
+            return lem.translate(table_car)
+    
+    elif regLG() == "EN":
+        if pos.startswith('V') or pos.startswith('J') or pos.startswith('N'):
+            return lem
     else:
         return None
 
@@ -68,14 +79,23 @@ def lire_xml(fichier):
     tags = [tokenisation(tag) for tag in tag_phrase(racine[1].text, lg) if tokenisation(tag)]
     return id, tags
 
-def to_json(qqch):
+def to_json(data):
     """
     pour envoyer le résultat en json
     """
-    return qqch
+    if regLG() == "FR":
+        with open("indexationFR.json", "w") as write_file:
+            json.dump(data, write_file, ensure_ascii=False)
+            
+    if regLG() == "EN":
+        with open("indexationEN.json", "w") as write_file:
+            json.dump(data, write_file, ensure_ascii=False)
+            
+        return write_file
 
 usage()
-rep = sys.argv[1]+"/*/*.xml"
+#rep = sys.argv[1]+"/*/*.xml"
+rep = sys.argv[1]+"/*.xml"
 print("Chemin vers le corpus : {}".format(rep))
 
 table_car = str.maketrans("àâèéêëîïôùûüÿç", "aaeeeeiiouuuyc")
@@ -92,3 +112,4 @@ for fichier in glob.glob(rep):
                 tokens_freq[token].append(id)
 
 print(tokens_freq)
+to_json(tokens_freq)
