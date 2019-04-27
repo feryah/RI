@@ -52,6 +52,7 @@ def tokenisation(triplet):
     """
     global table_car
     tok, pos, lem = triplet.split('\t')
+    lem = lem.lower()
     
     if regLG() == "FR":
         if 'VER' in pos or 'ADJ' in pos or 'NOM' in pos or 'NAM' in pos:
@@ -63,6 +64,38 @@ def tokenisation(triplet):
     else:
         return None
 
+def constructList(listPath):
+    ListTerms = []
+    with open(listPath, 'r') as f:
+        for line in f:
+            line = line.strip()
+            if line not in ListTerms:
+                ListTerms.append(line)
+    return ListTerms                
+        
+def findMultiWords(tokens, listTerms):
+    result = [] #une liste des tokens, y compris des expressions polylexicales 
+    index = 0
+    max_index = len(tokens)
+    while index < max_index:
+        word = None
+        for size in range(5, 0, -1):
+            if index + size > max_index:
+                continue
+            pieces = tokens[index:(index + size)] #Un candidat polylexical d'une certaine taille
+            piece = ""
+            for x in pieces:
+                piece = piece + ' ' + x #On met les tokens dans une seule chaîne de caractères "piece" pour faciliter la comparaisons avec le dico qu'on vient de créer
+            piece = piece.strip(' ')
+            if piece.lower() in listTerms:
+                word = piece
+                result.append(word)
+                index = index + size
+                break
+        if word == None:
+            index = index + 1
+    return result
+        
 def lire_xml(fichier):
     """
     permet de parcourir un fichier xml
@@ -77,6 +110,18 @@ def lire_xml(fichier):
     racine = arbre.getroot()
     id = racine[0].text
     tags = [tokenisation(tag) for tag in tag_phrase(racine[1].text, lg) if tokenisation(tag)]
+    if lg == 'en':
+        listTerms = constructList("./dicoEN.txt")
+        multiwordsList = findMultiWords(tags, listTerms)
+        if len(multiwordsList) > 0:
+            for w in multiwordsList:
+                tags.append(w)
+    elif lg == 'fr':
+        listTerms = constructList("./dicoFR.txt")
+        multiwordsList = findMultiWords(tags, listTerms)
+        if len(multiwordsList) > 0:
+            for w in multiwordsList:
+                tags.append(w)
     return id, tags
 
 def to_json(data):
@@ -112,4 +157,4 @@ for fichier in glob.glob(rep):
                 tokens_freq[token].append(id)
 
 print(tokens_freq)
-to_json(tokens_freq)
+#to_json(tokens_freq)
