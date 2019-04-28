@@ -182,15 +182,29 @@ table_car = str.maketrans("àâèéêëîïôùûüÿç", "aaeeeeiiouuuyc")
 tokens_freq = {}
 tfByDoc = {}
 
+dicoSyn = {'mouton': ['brebis', 'agneau'], 'loup':['louve'], 'pre':['champ'], 'Spider Cochon':['Harry Crotteur'], 'sheep pen':['sheepfold']}
+
 
 for fichier in glob.glob(rep):
     id, tokens = lire_xml(fichier)
+    
     for token in tokens:
         if token not in tokens_freq:
-            tokens_freq[token] = [id]
+            tokens_freq[token] = set([id])
+            for k, v in dicoSyn.items():
+                for e in v:
+                    if k==token:
+                        tokens_freq[e] = set([id])
+                    
         else:
             if id not in tokens_freq[token]:
-                tokens_freq[token].append(id)
+                tokens_freq[token].add(id)
+                for k, v in dicoSyn.items():
+                    for e in v:
+                        if k==token:
+                            tokens_freq[e].add(id)
+                
+
                 
 print(tokens_freq)
 
