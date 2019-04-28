@@ -138,22 +138,6 @@ def to_json(data):
             
         return write_file
     
-    
-def index_inverse(fichier):
-    """
-    Crée un Iindex-inversé du texte du document spécifié.
-    {"mot1": ["Titre_du_doc1"], "mot2": ["Titre_du_doc2", "Titre_du_doc1",..."], ...},
-    """
-    inverse = {}
-    id, tokens = lire_xml(fichier)
-    for token in tokens:
-        if token not in inverse:
-            inverse[token] = [id]
-        else:
-            if id not in inverse[token]:
-                inverse[token].append(id)
-                
-    return inverse
 
 
 '''début gestionnaire de requêtes'''
@@ -198,17 +182,22 @@ table_car = str.maketrans("àâèéêëîïôùûüÿç", "aaeeeeiiouuuyc")
 tokens_freq = {}
 tfByDoc = {}
 
+
 for fichier in glob.glob(rep):
-    ind_inv = index_inverse(fichier)
-    print("Fichier en cours d'indexation : {}".format(fichier))
+    id, tokens = lire_xml(fichier)
+    for token in tokens:
+        if token not in tokens_freq:
+            tokens_freq[token] = [id]
+        else:
+            if id not in tokens_freq[token]:
+                tokens_freq[token].append(id)
+                
+print(tokens_freq)
 
+#to_json(tokens_freq)
 
-    print(ind_inv)
-
-    #to_json(ind_inv)
-
-    #req = obtainTermsFromDictionary(processQuery(), ind_inv)
-    #print(req)
+#req = obtainTermsFromDictionary(processQuery(), ind_inv)
+#print(req)
 
 usage()
 #rep = sys.argv[1]+"/*/*.xml"
