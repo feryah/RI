@@ -156,7 +156,7 @@ def index_inverse(fichier):
     return inverse
 
 
-'''Proccesses input Boolean query'''
+'''début gestionnaire de requêtes'''
 
 def processQuery():
     
@@ -179,15 +179,14 @@ def processQuery():
     
     return queryG
 
-''' Obtains terms from Index - Returns - list of 
-terms+docID ['term',id,id...]'''
+
 
 def obtainTermsFromDictionary(queryG, inverse):
     listC = []
     for word in queryG:
         for element in inverse.keys():
             if(word==element):
-                listC.append(element)
+                listC.append(inverse.values())
     return listC
 
 usage()
