@@ -145,16 +145,27 @@ print("Chemin vers le corpus : {}".format(rep))
 
 table_car = str.maketrans("àâèéêëîïôùûüÿç", "aaeeeeiiouuuyc")
 tokens_freq = {}
+tfByDoc = {}
 
 for fichier in glob.glob(rep):
     print("Fichier en cours d'indexation : {}".format(fichier))
     id, tokens = lire_xml(fichier)
+    tfByDoc[id] = {}
     for token in tokens:
         if token not in tokens_freq:
             tokens_freq[token] = [id]
         else:
             if id not in tokens_freq[token]:
                 tokens_freq[token].append(id)
+        if token not in tfByDoc[id].keys():
+            tfByDoc[id][token] = 1
+        else:
+            tfByDoc[id][token] += 1
 
 print(tokens_freq)
+print(tfByDoc)
 to_json(tokens_freq)
+"""
+with open("tfByDocFR.json", "w") as write_file:
+    json.dump(tfByDoc, write_file, ensure_ascii=False)
+"""
