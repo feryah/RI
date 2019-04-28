@@ -137,6 +137,58 @@ def to_json(data):
             json.dump(data, write_file, ensure_ascii=False)
             
         return write_file
+    
+    
+def index_inverse(fichier):
+    """
+    Crée un Iindex-inversé du texte du document spécifié.
+    {"mot1": ["Titre_du_doc1"], "mot2": ["Titre_du_doc2", "Titre_du_doc1",..."], ...},
+    """
+    inverse = {}
+    id, tokens = lire_xml(fichier)
+    for token in tokens:
+        if token not in inverse:
+            inverse[token] = [id]
+        else:
+            if id not in inverse[token]:
+                inverse[token].append(id)
+                
+    return inverse
+
+
+'''Proccesses input Boolean query'''
+
+def processQuery():
+    
+    queryG = []
+    global table_car
+    
+    
+    queryRaw=input('Enter your query - ')
+    
+    if regLG() == "FR":
+        queryT=queryRaw.split(" ")
+        for word in queryT:
+            queryG.append(word.lower().translate(table_car))
+    
+    if regLG() == "EN":
+        queryT=queryRaw.split(" ")
+        for word in queryT:
+            queryG.append(word.lower())
+    
+    
+    return queryG
+
+''' Obtains terms from Index - Returns - list of 
+terms+docID ['term',id,id...]'''
+
+def obtainTermsFromDictionary(queryG, inverse):
+    listC = []
+    for word in queryG:
+        for element in inverse.keys():
+            if(word==element):
+                listC.append(element)
+    return listC
 
 usage()
 #rep = sys.argv[1]+"/*/*.xml"
@@ -146,6 +198,25 @@ print("Chemin vers le corpus : {}".format(rep))
 table_car = str.maketrans("àâèéêëîïôùûüÿç", "aaeeeeiiouuuyc")
 tokens_freq = {}
 tfByDoc = {}
+
+for fichier in glob.glob(rep):
+    ind_inv = index_inverse(fichier)
+    print("Fichier en cours d'indexation : {}".format(fichier))
+
+
+    print(ind_inv)
+
+    #to_json(ind_inv)
+
+    #req = obtainTermsFromDictionary(processQuery(), ind_inv)
+    #print(req)
+
+usage()
+#rep = sys.argv[1]+"/*/*.xml"
+rep = sys.argv[1]+"/*.xml"
+print("Chemin vers le corpus : {}".format(rep))
+
+
 
 for fichier in glob.glob(rep):
     print("Fichier en cours d'indexation : {}".format(fichier))
@@ -162,9 +233,8 @@ for fichier in glob.glob(rep):
         else:
             tfByDoc[id][token] += 1
 
-print(tokens_freq)
 print(tfByDoc)
-to_json(tokens_freq)
+
 """
 with open("tfByDocFR.json", "w") as write_file:
     json.dump(tfByDoc, write_file, ensure_ascii=False)
