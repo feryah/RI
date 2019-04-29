@@ -153,6 +153,7 @@ def indexCorpus(cheminCorpus):
     tokens_freq = {}
     for fichier in glob.glob(cheminCorpus):
 
+        print("Fichier en cours d'indexation : {}".format(glob.glob(fichier)))
         id, tokens = readXML(fichier)
 
         for token in tokens:
