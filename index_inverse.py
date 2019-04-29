@@ -157,7 +157,7 @@ def normaliseRequete (req):
     """" Analyse de la requête et classification de ses tokens selon leur signe """
     
     global table_car
-    requete=input(req)
+    requete=input(req) # Exemple de requête : +'Spider Cochon' -loup
 
     # les mots et leur 'signe' sont extraits de la requête dans 2 listes 'parallèles
     mots = []
