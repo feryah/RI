@@ -52,7 +52,6 @@ def tokenisation(triplet):
     """
     global table_car
     tok, pos, lem = triplet.split('\t')
-    #lem = lem.lower()
     
     if regLG() == "FR":
         if 'VER' in pos or 'ADJ' in pos or 'NOM' in pos or 'NAM' in pos:
