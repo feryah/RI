@@ -1,8 +1,7 @@
 # -*- coding: utf-8 -*-
 # TODO : 
-# gérer les mots composés,
-# éventuellement les synonymes sauf si on le fait au niveau de la requête,
-## rajouter des assert ?
+
+#corriger le problème d'ouverture en lecture du fichier JSON en dico voir fonction readAsDico
 
 import json
 import xml.etree.ElementTree as ET
@@ -53,7 +52,7 @@ def tokenisation(triplet):
     """
     global table_car
     tok, pos, lem = triplet.split('\t')
-    lem = lem.lower()
+    #lem = lem.lower()
     
     if regLG() == "FR":
         if 'VER' in pos or 'ADJ' in pos or 'NOM' in pos or 'NAM' in pos:
@@ -112,13 +111,13 @@ def lire_xml(fichier):
     id = racine[0].text
     tags = [tokenisation(tag) for tag in tag_phrase(racine[1].text, lg) if tokenisation(tag)]
     if lg == 'en':
-        listTerms = constructList("./dicoEN.txt")
+        listTerms = constructList("/home/tim/Documents/RI/dicoEN.txt")
         multiwordsList = findMultiWords(tags, listTerms)
         if len(multiwordsList) > 0:
             for w in multiwordsList:
                 tags.append(w)
     elif lg == 'fr':
-        listTerms = constructList("./dicoFR.txt")
+        listTerms = constructList("/home/tim/Documents/RI/dicoFR.txt")
         multiwordsList = findMultiWords(tags, listTerms)
         if len(multiwordsList) > 0:
             for w in multiwordsList:
@@ -130,11 +129,11 @@ def to_json(data):
     pour envoyer le résultat en json
     """
     if regLG() == "FR":
-        with open("indexationFR.json", "w") as write_file:
+        with open("indexationFR.json", "a+") as write_file:
             json.dump(data, write_file, ensure_ascii=False)
             
     if regLG() == "EN":
-        with open("indexationEN.json", "w") as write_file:
+        with open("indexationEN.json", "a+") as write_file:
             json.dump(data, write_file, ensure_ascii=False)
             
         return write_file
@@ -186,20 +185,22 @@ def normaliseRequete (req):
             signes.append (match[0][0])
             mots.append (match[0][1].translate(table_car))
     
-
+    
     tokens = mots
 	
-    
+    # les tokens sont classés dans 3 listes des tokens en 3 listes
     tokCat = defaultdict(list)
     for i in range (len(tokens)):
         tokCat[signes[i]].append (tokens[i])
 
     return tokCat 
 
+
 	
 def scoreDocuments (docs, tokensNormalises, indexInverse):
     
     """ Evalue le nombre total de matchs de token par document """
+    
     
     scores = defaultdict(int)
     for doc in docs:
@@ -221,31 +222,31 @@ def chercheDocumentsDeLaRequete (tokensNormalises, indexInverse):
         for token in tokensNormalises['+']:
             # dès qu'un token obligatoire n'est pas dans l'index
             if token not in indexInverse.keys (): return set()
-
+            
             docsToken = set(indexInverse[token])
             if (no == 0):
                 docsTrouves = docsToken
                 no = 1
             else :
-                
+                #docsTrouves = docsTrouves & docsToken
                 docsTrouves = docsTrouves.intersection(docsToken)
     else :
         # CUMUL des documents des tokens FACULTATIFS
         for token in tokensNormalises['']:
             if token in indexInverse.keys ():
-            
+
                 docsToken = set(indexInverse[token])
-                
+                #docsTrouves = docsTrouves | docsToken
                 docsTrouves = docsTrouves.union(docsToken)
                 
                 # SUPPRESSION des documents des tokens INTERDITS
     for token in tokensNormalises['-']:
         if token in indexInverse.keys ():
-           
+
             docsToken = set(indexInverse[token])
             
             docsTrouves = docsTrouves - docsToken
-
+            
                 
     docsResultat = scoreDocuments (docsTrouves, tokensNormalises, indexInverse)
     
@@ -282,31 +283,35 @@ for fichier in glob.glob(rep):
                         if k==token:
                             tokens_freq[e].append(id)
                 
-
                 
 print(tokens_freq)
 
-#to_json(tokens_freq)
+to_json(tokens_freq)
 
-dico = readAsDico()
+#dico = readAsDico()
 
-print(dico)
+#print(dico) #ça donne None, ???
 
 reqNorm = normaliseRequete("Taper une requête :   ")
 
 print(reqNorm)
 
 docs=[]
-for token, titres in dico.items():
+for token, titres in tokens_freq.items():
     for titre in titres:
         for signe, liste in reqNorm.items():
             for mot in liste:
                 if token==mot:
                     docs.append(titre)
-#print(docs, "\n")
+                    
+
+scorDocs = chercheDocumentsDeLaRequete (reqNorm, tokens_freq)
 
 
-scorDocs = chercheDocumentsDeLaRequete (reqNorm, dico)
+print(dict(scorDocs))
+
+
+#scorDocs = chercheDocumentsDeLaRequete (reqNorm, dico) # marche pas quand c'est les données du fichier lues comme dico'
 
 
 #print(dict(scorDocs))
