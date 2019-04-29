@@ -14,6 +14,7 @@ import re
 import warnings
 warnings.filterwarnings("ignore")
 from treetaggerwrapper import TreeTagger
+from collections import defaultdict
 
 def usage():
     """
@@ -138,40 +139,117 @@ def to_json(data):
             
         return write_file
     
+def readAsDico():
+    """ ouvrir le fichier JSON comme dictionnaire """
+    if regLG() == "FR":
+        with open("/home/tim/Documents/RI/indexationFR.json", "r") as f:
+            dico = json.load(f)
+    if regLG() == "EN":
+        with open("/home/tim/Documents/RI/indexationEN.json", "r") as f:
+            dico = json.load(f)
+        
+        return dico
+    
 
 
 '''début gestionnaire de requêtes'''
 
-def processQuery():
+
+def normaliseRequete (req):
+    """" Analyse de la requête et classification de ses tokens selon leur signe """
     
-    queryG = []
     global table_car
+    requete=input(req)
+
+    # les mots et leur 'signe' sont extraits de la requête dans 2 listes 'parallèles
+    mots = []
+    signes = []	
     
+    if "'" in requete:
+        #match = re.findall(r"([+-]+)(['A-Za-z\sA-Za-z']+)", requete)
+        match = re.findall(r"([+-]*)([']*\w+\s*\w+[']*)", requete)
+        
+        for tup in match:
+            signes.append(tup[0])
+            tup = list(tup)
+            tup[1] = re.sub (r"[']", r"", tup[1])
+            mots.append(tup[1].translate(table_car))
+    else:
+        # nettoyage des caractères parasites autres que + ou -
+        requete = re.sub (r"[^ _\w+-]", r"", requete)
+        requete = re.sub (r"([+-])\s*", r"\1", requete)
+        requete = re.sub (r"\s+", r" ", requete)
+        for item in requete.split (' '):
+        
+    # le signe (+ ou -) est dissocié du token 
+            match = re.findall(r'^([+-]*)([^+-]+)$', item)
+            signes.append (match[0][0])
+            mots.append (match[0][1].translate(table_car))
     
-    queryRaw=input('Enter your query - ')
+
+    tokens = mots
+	
     
-    if regLG() == "FR":
-        queryT=queryRaw.split(" ")
-        for word in queryT:
-            queryG.append(word.lower().translate(table_car))
+    tokCat = defaultdict(list)
+    for i in range (len(tokens)):
+        tokCat[signes[i]].append (tokens[i])
+
+    return tokCat 
+
+	
+def scoreDocuments (docs, tokensNormalises, indexInverse):
     
-    if regLG() == "EN":
-        queryT=queryRaw.split(" ")
-        for word in queryT:
-            queryG.append(word.lower())
+    """ Evalue le nombre total de matchs de token par document """
     
-    
-    return queryG
+    scores = defaultdict(int)
+    for doc in docs:
+        scores[doc] += 1
+
+    print (docs)
+    return scores
 
 
 
-def obtainTermsFromDictionary(queryG, inverse):
-    listC = []
-    for word in queryG:
-        for element in inverse.keys():
-            if(word==element):
-                listC.append(inverse.values())
-    return listC
+def chercheDocumentsDeLaRequete (tokensNormalises, indexInverse):
+    
+    """ Cherche les documents demandés et renvoie les documents 'scorés' """
+    
+    docsTrouves = set()
+    if '+' in tokensNormalises.keys ():
+        # LES TOKENS OBLIGATOIRES PRENNENT LE PAS SUR LES FACULTATIFS 
+        no = 0;
+        for token in tokensNormalises['+']:
+            # dès qu'un token obligatoire n'est pas dans l'index
+            if token not in indexInverse.keys (): return set()
+
+            docsToken = set(indexInverse[token])
+            if (no == 0):
+                docsTrouves = docsToken
+                no = 1
+            else :
+                
+                docsTrouves = docsTrouves.intersection(docsToken)
+    else :
+        # CUMUL des documents des tokens FACULTATIFS
+        for token in tokensNormalises['']:
+            if token in indexInverse.keys ():
+            
+                docsToken = set(indexInverse[token])
+                
+                docsTrouves = docsTrouves.union(docsToken)
+                
+                # SUPPRESSION des documents des tokens INTERDITS
+    for token in tokensNormalises['-']:
+        if token in indexInverse.keys ():
+           
+            docsToken = set(indexInverse[token])
+            
+            docsTrouves = docsTrouves - docsToken
+
+                
+    docsResultat = scoreDocuments (docsTrouves, tokensNormalises, indexInverse)
+    
+    return docsResultat
 
 usage()
 #rep = sys.argv[1]+"/*/*.xml"
@@ -190,19 +268,19 @@ for fichier in glob.glob(rep):
     
     for token in tokens:
         if token not in tokens_freq:
-            tokens_freq[token] = set([id])
+            tokens_freq[token] = [id]
             for k, v in dicoSyn.items():
                 for e in v:
                     if k==token:
-                        tokens_freq[e] = set([id])
+                        tokens_freq[e] = [id]
                     
         else:
             if id not in tokens_freq[token]:
-                tokens_freq[token].add(id)
+                tokens_freq[token].append(id)
                 for k, v in dicoSyn.items():
                     for e in v:
                         if k==token:
-                            tokens_freq[e].add(id)
+                            tokens_freq[e].append(id)
                 
 
                 
@@ -210,32 +288,53 @@ print(tokens_freq)
 
 #to_json(tokens_freq)
 
-#req = obtainTermsFromDictionary(processQuery(), ind_inv)
-#print(req)
+dico = readAsDico()
 
-usage()
+print(dico)
+
+reqNorm = normaliseRequete("Taper une requête :   ")
+
+print(reqNorm)
+
+docs=[]
+for token, titres in dico.items():
+    for titre in titres:
+        for signe, liste in reqNorm.items():
+            for mot in liste:
+                if token==mot:
+                    docs.append(titre)
+#print(docs, "\n")
+
+
+scorDocs = chercheDocumentsDeLaRequete (reqNorm, dico)
+
+
+#print(dict(scorDocs))
+
+
+#usage()
 #rep = sys.argv[1]+"/*/*.xml"
-rep = sys.argv[1]+"/*.xml"
-print("Chemin vers le corpus : {}".format(rep))
+#rep = sys.argv[1]+"/*.xml"
+#print("Chemin vers le corpus : {}".format(rep))
 
 
 
-for fichier in glob.glob(rep):
-    print("Fichier en cours d'indexation : {}".format(fichier))
-    id, tokens = lire_xml(fichier)
-    tfByDoc[id] = {}
-    for token in tokens:
-        if token not in tokens_freq:
-            tokens_freq[token] = [id]
-        else:
-            if id not in tokens_freq[token]:
-                tokens_freq[token].append(id)
-        if token not in tfByDoc[id].keys():
-            tfByDoc[id][token] = 1
-        else:
-            tfByDoc[id][token] += 1
+#for fichier in glob.glob(rep):
+    #print("Fichier en cours d'indexation : {}".format(fichier))
+    #id, tokens = lire_xml(fichier)
+    #tfByDoc[id] = {}
+    #for token in tokens:
+        #if token not in tokens_freq:
+            #tokens_freq[token] = [id]
+        #else:
+            #if id not in tokens_freq[token]:
+                #tokens_freq[token].append(id)
+        #if token not in tfByDoc[id].keys():
+            #tfByDoc[id][token] = 1
+        #else:
+            #tfByDoc[id][token] += 1
 
-print(tfByDoc)
+#print(tfByDoc)
 
 """
 with open("tfByDocFR.json", "w") as write_file:
