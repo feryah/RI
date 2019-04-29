@@ -128,11 +128,11 @@ def to_json(data):
     pour envoyer le résultat en json
     """
     if regLG() == "FR":
-        with open("indexationFR.json", "a+") as write_file:
+        with open("indexationFR.json", "w") as write_file:
             json.dump(data, write_file, ensure_ascii=False)
             
     if regLG() == "EN":
-        with open("indexationEN.json", "a+") as write_file:
+        with open("indexationEN.json", "w") as write_file:
             json.dump(data, write_file, ensure_ascii=False)
             
         return write_file
