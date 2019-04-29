@@ -110,13 +110,13 @@ def lire_xml(fichier):
     id = racine[0].text
     tags = [tokenisation(tag) for tag in tag_phrase(racine[1].text, lg) if tokenisation(tag)]
     if lg == 'en':
-        listTerms = constructList("/home/tim/Documents/RI/dicoEN.txt")
+        listTerms = constructList("dicoEN.txt")
         multiwordsList = findMultiWords(tags, listTerms)
         if len(multiwordsList) > 0:
             for w in multiwordsList:
                 tags.append(w)
     elif lg == 'fr':
-        listTerms = constructList("/home/tim/Documents/RI/dicoFR.txt")
+        listTerms = constructList("dicoFR.txt")
         multiwordsList = findMultiWords(tags, listTerms)
         if len(multiwordsList) > 0:
             for w in multiwordsList:
@@ -140,13 +140,13 @@ def to_json(data):
 def readAsDico():
     """ ouvrir le fichier JSON comme dictionnaire """
     if regLG() == "FR":
-        with open("/home/tim/Documents/RI/indexationFR.json", "r") as f:
+        with open("indexationFR.json", "r") as f:
             dico = json.load(f)
     if regLG() == "EN":
-        with open("/home/tim/Documents/RI/indexationEN.json", "r") as f:
+        with open("indexationEN.json", "r") as f:
             dico = json.load(f)
         
-        return dico
+    return dico
     
 
 
@@ -287,9 +287,9 @@ print(tokens_freq)
 
 to_json(tokens_freq)
 
-#dico = readAsDico()
+dico = readAsDico()
 
-#print(dico) #ça donne None, ???
+print(dico) #ça donne None, ???
 
 reqNorm = normaliseRequete("Taper une requête :   ")
 
