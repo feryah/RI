@@ -26,7 +26,7 @@ def normaliseRequete(req):
 
     # les mots et leur 'signe' sont extraits de la requête dans 2 listes 'parallèles
     mots = []
-    signes = []	
+    signes = []    
     
     if "'" in requete:
         #match = re.findall(r"([+-]+)(['A-Za-z\sA-Za-z']+)", requete)
@@ -51,7 +51,7 @@ def normaliseRequete(req):
     
     
     tokens = mots
-	
+    
     # les tokens sont classés dans 3 listes des tokens en 3 listes
     tokCat = defaultdict(list)
     for i in range (len(tokens)):
@@ -60,14 +60,26 @@ def normaliseRequete(req):
     return tokCat 
 
 
-	
-def scoreDocuments(docs, tokensNormalises, indexInverse):
+    
+def scoreDocuments(docs, tokensNormalises, docMots):
     
     """ Evalue le nombre total de matchs de token par document """
-
-    scores = defaultdict(int)
+    wordsInResearch = set()
+    for x in tokensNormalises.keys():
+        if x == '-':
+            continue
+        else:
+            for word in tokensNormalises[x]:
+                wordsInResearch.add(word)
+    result = {}
     for doc in docs:
-        scores[doc] += 1
+        result[doc] = 0
+        for word in wordsInResearch:
+            if word in docMots[doc].keys():
+                result[doc] = result[doc] + docMots[doc][word]
+    import operator
+    
+    scores = sorted(result.items(), key=operator.itemgetter(1), reverse=True)
 
     return scores
 
