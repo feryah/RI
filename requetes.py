@@ -3,14 +3,10 @@
 
 import json
 
-import glob
-import sys
 import re
 
 from collections import defaultdict
 
-
-    
 def readAsDico(lg):
     """ ouvrir le fichier JSON comme dictionnaire """
     assert lg == "FR" or lg == "EN", "Problème : gestion du langage"
@@ -22,7 +18,7 @@ def readAsDico(lg):
             dico = json.load(f)
     return dico
 
-def normaliseRequete (req):
+def normaliseRequete(req):
     """" Analyse de la requête et classification de ses tokens selon leur signe """
     
     global table_car
@@ -65,7 +61,7 @@ def normaliseRequete (req):
 
 
 	
-def scoreDocuments (docs, tokensNormalises, indexInverse):
+def scoreDocuments(docs, tokensNormalises, indexInverse):
     
     """ Evalue le nombre total de matchs de token par document """
 
@@ -111,7 +107,7 @@ def chercheDocumentsDeLaRequete(tokensNormalises, indexInverse):
             docsToken = set(indexInverse[token])
             docsTrouves = docsTrouves - docsToken
 
-    docsResultat = scoreDocuments (docsTrouves, tokensNormalises, indexInverse)
+    docsResultat = scoreDocuments(docsTrouves, tokensNormalises, indexInverse)
     
     return docsResultat
 
@@ -122,14 +118,14 @@ def printResults(dict):
     :return: void
     """
     for titre in dict:
-        print("Titre du document trouvé : {}".format(titre))
+        print("Titre du document trouvé : {} ({} tokens trouvé(s))".format(titre, int(dict[titre])))
 
 table_car = str.maketrans("àâèéêëîïôùûüÿç", "aaeeeeiiouuuyc")
 
 reqLG = input("Language de la requête (EN/FR) : ")
 dico = readAsDico(reqLG)
 
-reqNorm = normaliseRequete("Taper une requête : ")
+reqNorm = normaliseRequete("Taper une requête [ex. +'Spider Cochon' -loup] : ")
 
 scorDocs = chercheDocumentsDeLaRequete(reqNorm, dico)
 

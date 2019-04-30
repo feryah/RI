@@ -6,6 +6,7 @@ import xml.etree.ElementTree as ET
 
 import glob
 import sys
+import os
 import re
 
 import warnings
@@ -190,7 +191,9 @@ def toJSON(data, lg):
 
 cheminCorpusFR, cheminCorpusEN = testArgs()
 print("Chemin vers le corpus français : {}".format(cheminCorpusFR))
+assert os.path.isfile(cheminCorpusFR), "Problème : corpus français introuvable"
 print("Chemin vers le corpus anglais : {}".format(cheminCorpusEN))
+assert os.path.isfile(cheminCorpusEN), "Problème : corpus anglais introuvable"
 
 table_car = str.maketrans("àâèéêëîïôùûüÿç", "aaeeeeiiouuuyc")
 
