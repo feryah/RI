@@ -26,7 +26,7 @@ def testArgs():
         print("{0}\n{2} est introuvable\n{1}\n{0}".format(sep,message,sys.argv[1]))
         exit()
     else:
-        return sys.argv[1] + "FR/*.xml", sys.argv[1] + "EN/*.xml"
+        return sys.argv[1] + "/FR/*.xml", sys.argv[1] + "/EN/*.xml"
 
 def regLG(fichier):
     """
@@ -62,11 +62,11 @@ def tokenText(triplet, lg):
     
     if lg == 'fr':
         if 'VER' in pos or 'ADJ' in pos or 'NOM' in pos or 'NAM' in pos:
-            return lem.translate(table_car)
+            return lem.translate(table_car).lower()
     
     elif lg == 'en':
         if pos.startswith('V') or pos.startswith('J') or pos.startswith('N'):
-            return lem
+            return lem.lower()
     else:
         return None
 
@@ -194,7 +194,7 @@ print("Chemin vers le corpus anglais : {}".format(cheminCorpusEN))
 
 table_car = str.maketrans("àâèéêëîïôùûüÿç", "aaeeeeiiouuuyc")
 
-dicoSyn = {'mouton': ['brebis', 'agneau'], 'loup':['louve'], 'pre':['champ'], 'Spider Cochon':['Harry Crotteur'], 'sheep pen':['sheepfold']}
+dicoSyn = {'mouton': ['brebis', 'agneau'], 'loup':['louve'], 'pre':['champ'], 'spider cochon':['harry crotteur'], 'sheep pen':['sheepfold']}
 
 toJSON(indexCorpus(cheminCorpusFR), 'fr')
 toJSON(indexCorpus(cheminCorpusEN), 'en')

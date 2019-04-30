@@ -40,7 +40,7 @@ def normaliseRequete (req):
             signes.append(tup[0])
             tup = list(tup)
             tup[1] = re.sub (r"[']", r"", tup[1])
-            mots.append(tup[1].translate(table_car))
+            mots.append(tup[1].translate(table_car).lower())
     else:
         # nettoyage des caractères parasites autres que + ou -
         requete = re.sub (r"[^ _\w+-]", r"", requete)
@@ -51,7 +51,7 @@ def normaliseRequete (req):
     # le signe (+ ou -) est dissocié du token 
             match = re.findall(r'^([+-]*)([^+-]+)$', item)
             signes.append (match[0][0])
-            mots.append (match[0][1].translate(table_car))
+            mots.append (match[0][1].translate(table_car).lower())
     
     
     tokens = mots
@@ -68,7 +68,7 @@ def normaliseRequete (req):
 def scoreDocuments (docs, tokensNormalises, indexInverse):
     
     """ Evalue le nombre total de matchs de token par document """
-      
+
     scores = defaultdict(int)
     for doc in docs:
         scores[doc] += 1
@@ -115,6 +115,15 @@ def chercheDocumentsDeLaRequete(tokensNormalises, indexInverse):
     
     return docsResultat
 
+def printResults(dict):
+    """
+    imprime les résultats depuis un dictionnaire
+    :param dict: dictionnaire de titres
+    :return: void
+    """
+    for titre in dict:
+        print("Titre du document trouvé : {}".format(titre))
+
 table_car = str.maketrans("àâèéêëîïôùûüÿç", "aaeeeeiiouuuyc")
 
 reqLG = input("Language de la requête (EN/FR) : ")
@@ -124,34 +133,4 @@ reqNorm = normaliseRequete("Taper une requête : ")
 
 scorDocs = chercheDocumentsDeLaRequete(reqNorm, dico)
 
-print(dict(scorDocs))
-
-
-#testArgs()
-#rep = sys.argv[1]+"/*/*.xml"
-#rep = sys.argv[1]+"/*.xml"
-#print("Chemin vers le corpus : {}".format(rep))
-
-
-
-#for fichier in glob.glob(rep):
-    #print("Fichier en cours d'indexation : {}".format(fichier))
-    #id, tokens = readXML(fichier)
-    #tfByDoc[id] = {}
-    #for token in tokens:
-        #if token not in tokens_freq:
-            #tokens_freq[token] = [id]
-        #else:
-            #if id not in tokens_freq[token]:
-                #tokens_freq[token].append(id)
-        #if token not in tfByDoc[id].keys():
-            #tfByDoc[id][token] = 1
-        #else:
-            #tfByDoc[id][token] += 1
-
-#print(tfByDoc)
-
-"""
-with open("tfByDocFR.json", "w") as write_file:
-    json.dump(tfByDoc, write_file, ensure_ascii=False)
-"""
+printResults(dict(scorDocs))
