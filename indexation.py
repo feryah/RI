@@ -27,6 +27,7 @@ def testArgs():
         print("{0}\n{2} est introuvable\n{1}\n{0}".format(sep,message,sys.argv[1]))
         exit()
     else:
+        assert os.path.isdir(sys.argv[1]), "Problème : corpus introuvable"
         return sys.argv[1] + "/FR/*.xml", sys.argv[1] + "/EN/*.xml"
 
 def regLG(fichier):
@@ -202,9 +203,8 @@ def toJSON(data, lg):
 
 cheminCorpusFR, cheminCorpusEN = testArgs()
 print("Chemin vers le corpus français : {}".format(cheminCorpusFR))
-assert os.path.isfile(cheminCorpusFR), "Problème : corpus français introuvable"
 print("Chemin vers le corpus anglais : {}".format(cheminCorpusEN))
-assert os.path.isfile(cheminCorpusEN), "Problème : corpus anglais introuvable"
+
 
 table_car = str.maketrans("àâèéêëîïôùûüÿç", "aaeeeeiiouuuyc")
 
