@@ -143,6 +143,17 @@ def readXML(fichier):
                 tags.append(w)
     return id, tags
 
+def docFreqMots(cheminCorpus):
+    docMots = {}
+    for fichier in glob.glob(cheminCorpus):
+        id, tokens = readXML(fichier)
+        docMots[id] = {} #un dico {key(mot) : value(frequence)}
+        for token in tokens:
+            if token not in docMots[id].keys():
+                docMots[id][token] = 1
+            else:
+                docMots[id][token] += 1
+    return docMots
 
 def indexCorpus(cheminCorpus):
     """
