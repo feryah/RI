@@ -113,7 +113,13 @@ def scoreDocuments(docs, tokensNormalises, docMots):
 
 def chercheDocumentsDeLaRequete(tokensNormalises, indexInverse, docMots):
     
-    """ Cherche les documents demandés et renvoie les documents 'scorés' """
+    """ Cherche les documents demandés et renvoie les documents 'scorés' 
+        param : 
+            tokensNormalises : un dictionnaire dont les valeurs des signes sont une/des liste(s) de token(s)
+            IndexInverse : un dictionnaire de mots indexés par les titres les contenant
+            docMots : un dictionnaire de titres dont les valeurs sont des doctionnaires de mots et de leurs fréquences
+        return : une liste de tuples de titres de docs trouvés ainsi que du nombre de tokens trouvé d'après la requête'
+    """
     
     docsTrouves = set()
     if '+' in tokensNormalises.keys ():
