@@ -8,7 +8,10 @@ import re
 from collections import defaultdict
 
 def readAsDico(lg):
-    """ ouvrir le fichier JSON comme dictionnaire """
+    """ ouvrir le fichier JSON comme dictionnaire 
+        :param langue : FR ou EN
+        :return: un dictionnaire
+    """
     assert lg == "FR" or lg == "EN", "Problème : gestion du langage"
     if lg == "FR":
         with open("json/indexationFR.json", "r") as f:
@@ -19,7 +22,10 @@ def readAsDico(lg):
     return dico
 
 def readAsDicoFreqMots(lg):
-    """ ouvrir le fichier JSON comme dictionnaire """
+    """ ouvrir le fichier JSON comme dictionnaire
+        :param langue : FR ou EN
+        :return: un dictionnaire
+    """
     assert lg == "FR" or lg == "EN", "Problème : gestion du langage"
     if lg == "FR":
         with open("json/docFreqMotsFR.json", "r") as f:
@@ -30,7 +36,10 @@ def readAsDicoFreqMots(lg):
     return dico
 
 def normaliseRequete(req):
-    """" Analyse de la requête et classification de ses tokens selon leur signe """
+    """" Analyse de la requête et classification de ses tokens selon leur signe 
+        :param req : input d'un ensemble de mots-clé
+        :return: un dictionnaire dont les valeurs du/des signe(s) est/sont une/des liste(s) de token(s)
+    """
     
     global table_car
     requete=input(req) # Exemple de requête : +'Spider Cochon' -loup
@@ -63,10 +72,11 @@ def normaliseRequete(req):
     
     tokens = mots
     
-    # les tokens sont classés dans 3 listes des tokens en 3 listes
+    
     tokCat = defaultdict(list)
     for i in range (len(tokens)):
         tokCat[signes[i]].append (tokens[i])
+    
 
     return tokCat 
 
@@ -74,7 +84,13 @@ def normaliseRequete(req):
     
 def scoreDocuments(docs, tokensNormalises, docMots):
     
-    """ Evalue le nombre total de matchs de token par document """
+    """ Evalue le nombre total de matchs de token par document
+        :param 
+            docs : listes des titres trouvés à  partir de l'index
+            tokensNormalises : un dictionnaire dont les valeurs des signes sont une/des liste(s) de token(s)
+            docMots : un dictionnaire de titres dont les valeurs sont des doctionnaires de mots et de leurs fréquences
+        :return: une liste de tuples de titres de docs trouvés ainsi que du nombre de tokens trouvés
+    """
     wordsInResearch = set()
     for x in tokensNormalises.keys():
         if x == '-':
@@ -141,7 +157,7 @@ def printResults(liste):
     :return: void
     """
     for tup in liste:
-        print("Titre du document trouvé : {} ({} tokens trouvé(s))".format(tup[0], int(tup[1])))
+        print("Titre du document trouvé : {} ({} token(s) trouvé(s))".format(tup[0], int(tup[1])))
 
 
 table_car = str.maketrans("àâèéêëîïôùûüÿç", "aaeeeeiiouuuyc")
