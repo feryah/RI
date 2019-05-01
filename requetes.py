@@ -18,6 +18,17 @@ def readAsDico(lg):
             dico = json.load(f)
     return dico
 
+def readAsDicoFreqMots(lg):
+    """ ouvrir le fichier JSON comme dictionnaire """
+    assert lg == "FR" or lg == "EN", "Problème : gestion du langage"
+    if lg == "FR":
+        with open("json/docFreqMotsFR.json", "r") as f:
+            dico = json.load(f)
+    elif lg == "EN":
+        with open("json/docFreqMotsEN.json", "r") as f:
+            dico = json.load(f)
+    return dico
+
 def normaliseRequete(req):
     """" Analyse de la requête et classification de ses tokens selon leur signe """
     
@@ -84,14 +95,14 @@ def scoreDocuments(docs, tokensNormalises, docMots):
     return scores
 
 
-def chercheDocumentsDeLaRequete(tokensNormalises, indexInverse):
+def chercheDocumentsDeLaRequete(tokensNormalises, indexInverse, docMots):
     
     """ Cherche les documents demandés et renvoie les documents 'scorés' """
     
     docsTrouves = set()
     if '+' in tokensNormalises.keys ():
         # LES TOKENS OBLIGATOIRES PRENNENT LE PAS SUR LES FACULTATIFS 
-        no = 0;
+        no = 0
         for token in tokensNormalises['+']:
             # dès qu'un token obligatoire n'est pas dans l'index
             if token not in indexInverse.keys (): return set()
@@ -119,26 +130,28 @@ def chercheDocumentsDeLaRequete(tokensNormalises, indexInverse):
             docsToken = set(indexInverse[token])
             docsTrouves = docsTrouves - docsToken
 
-    docsResultat = scoreDocuments(docsTrouves, tokensNormalises, indexInverse)
+    docsResultat = scoreDocuments(docsTrouves, tokensNormalises, docMots)
     
     return docsResultat
 
-def printResults(dict):
+def printResults(liste):
     """
-    imprime les résultats depuis un dictionnaire
-    :param dict: dictionnaire de titres
+    imprime les résultats depuis une liste de tuples (doc, score)
+    :param liste de tuples: liste de titres et de leurs scores
     :return: void
     """
-    for titre in dict:
-        print("Titre du document trouvé : {} ({} tokens trouvé(s))".format(titre, int(dict[titre])))
-
+    for tup in liste:
+        for titre in tup:
+        #print("Titre du document trouvé : {} ({} tokens trouvé(s))".format(titre, int(dict[titre])))
+            print("Titre du document trouvé : {} ({} tokens trouvé(s))".format(titre, int(tup[1])))
 table_car = str.maketrans("àâèéêëîïôùûüÿç", "aaeeeeiiouuuyc")
 
 reqLG = input("Language de la requête (EN/FR) : ")
-dico = readAsDico(reqLG)
+dicoIndex = readAsDico(reqLG)
+dicoFreq = readAsDicoFreqMots(reqLG)
 
 reqNorm = normaliseRequete("Taper une requête [ex. +'Spider Cochon' -loup] : ")
 
-scorDocs = chercheDocumentsDeLaRequete(reqNorm, dico)
+scorDocs = chercheDocumentsDeLaRequete(reqNorm, dicoIndex, dicoFreq)
 
-printResults(dict(scorDocs))
+printResults(scorDocs)

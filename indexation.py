@@ -198,7 +198,21 @@ def toJSON(data, lg):
         with open("json/indexationEN.json", "w") as write_file:
             json.dump(data, write_file, ensure_ascii=False)
             
-        return write_file
+    return write_file
+    
+def toJSONdocsFreqMots(data, lg):
+    """
+    pour envoyer le résultat en json à partir du dictionnaire
+    """
+    if lg == "fr":
+        with open("json/docFreqMotsFR.json", "w") as write_file:
+            json.dump(data, write_file, ensure_ascii=False)
+            
+    if lg == "en":
+        with open("json/docFreqMotsEN.json", "w") as write_file:
+            json.dump(data, write_file, ensure_ascii=False)
+            
+    return write_file
 
 
 cheminCorpusFR, cheminCorpusEN = testArgs()
@@ -210,5 +224,8 @@ table_car = str.maketrans("àâèéêëîïôùûüÿç", "aaeeeeiiouuuyc")
 
 dicoSyn = {'mouton': ['brebis', 'agneau'], 'loup':['louve'], 'pre':['champ'], 'spider cochon':['harry crotteur'], 'sheep pen':['sheepfold']}
 
-toJSON(indexCorpus(cheminCorpusFR), 'fr')
-toJSON(indexCorpus(cheminCorpusEN), 'en')
+#toJSON(indexCorpus(cheminCorpusFR), 'fr')
+#toJSON(indexCorpus(cheminCorpusEN), 'en')
+toJSONdocsFreqMots(docFreqMots(cheminCorpusFR), 'fr')
+toJSONdocsFreqMots(docFreqMots(cheminCorpusEN), 'en')
+
