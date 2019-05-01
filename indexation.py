@@ -145,6 +145,11 @@ def readXML(fichier):
     return id, tags
 
 def docFreqMots(cheminCorpus):
+    """
+	Crée un dictionnaire de dictionnaires : le dictionnaire du premier niveau a pour clé les documents et pour valeur un dictionnaire, qui à son tour a pour clé les termes et pour valeur les fréquences des termes. 
+	:param cheminCorpus: répertoire
+    :return: un dictionnaire
+	"""
     docMots = {}
     for fichier in glob.glob(cheminCorpus):
         id, tokens = readXML(fichier)
