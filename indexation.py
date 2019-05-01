@@ -224,8 +224,8 @@ table_car = str.maketrans("àâèéêëîïôùûüÿç", "aaeeeeiiouuuyc")
 
 dicoSyn = {'mouton': ['brebis', 'agneau'], 'loup':['louve'], 'pre':['champ'], 'spider cochon':['harry crotteur'], 'sheep pen':['sheepfold']}
 
-#toJSON(indexCorpus(cheminCorpusFR), 'fr')
-#toJSON(indexCorpus(cheminCorpusEN), 'en')
+toJSON(indexCorpus(cheminCorpusFR), 'fr')
+toJSON(indexCorpus(cheminCorpusEN), 'en')
 toJSONdocsFreqMots(docFreqMots(cheminCorpusFR), 'fr')
 toJSONdocsFreqMots(docFreqMots(cheminCorpusEN), 'en')
 

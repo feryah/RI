@@ -141,9 +141,9 @@ def printResults(liste):
     :return: void
     """
     for tup in liste:
-        for titre in tup:
-        #print("Titre du document trouvé : {} ({} tokens trouvé(s))".format(titre, int(dict[titre])))
-            print("Titre du document trouvé : {} ({} tokens trouvé(s))".format(titre, int(tup[1])))
+        print("Titre du document trouvé : {} ({} tokens trouvé(s))".format(tup[0], int(tup[1])))
+
+
 table_car = str.maketrans("àâèéêëîïôùûüÿç", "aaeeeeiiouuuyc")
 
 reqLG = input("Language de la requête (EN/FR) : ")
